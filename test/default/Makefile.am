@@ -532,12 +532,6 @@ sodium_core_LDADD         = $(TESTS_LDADD)
 sodium_utils_SOURCE       = cmptest.h sodium_utils.c
 sodium_utils_LDADD        = $(TESTS_LDADD)
 
-sodium_utils2_SOURCE      = cmptest.h sodium_utils2.c
-sodium_utils2_LDADD       = $(TESTS_LDADD)
-
-sodium_utils3_SOURCE      = cmptest.h sodium_utils3.c
-sodium_utils3_LDADD       = $(TESTS_LDADD)
-
 sodium_version_SOURCE     = cmptest.h sodium_version.c
 sodium_version_LDADD      = $(TESTS_LDADD)
 
