@@ -14,6 +14,8 @@ int main(void)
     unsigned char *bobsk;
     unsigned char *mac;
     unsigned char *nonce;
+    unsigned char *k1;
+    unsigned char *k2;
     size_t         mlen;
     size_t         i;
 
@@ -23,11 +25,13 @@ int main(void)
     bobsk = (unsigned char *) sodium_malloc(crypto_box_SECRETKEYBYTES);
     mac = (unsigned char *) sodium_malloc(crypto_box_MACBYTES);
     nonce = (unsigned char *) sodium_malloc(crypto_box_NONCEBYTES);
+    k1 = (unsigned char *) sodium_malloc(crypto_box_BEFORENMBYTES);
+    k2 = (unsigned char *) sodium_malloc(crypto_box_BEFORENMBYTES);
     crypto_box_keypair(alicepk, alicesk);
     crypto_box_keypair(bobpk, bobsk);
     mlen = (size_t) randombytes_uniform((uint32_t)sizeof m);
     randombytes_buf(m, mlen);
-    randombytes_buf(nonce, sizeof nonce);
+    randombytes_buf(nonce, crypto_box_NONCEBYTES);
     crypto_box_easy(c, m, mlen, nonce, bobpk, alicesk);
     if (crypto_box_open_easy(m2, c,
                              (unsigned long long) mlen + crypto_box_MACBYTES,
@@ -55,17 +59,45 @@ int main(void)
         printf("crypto_box_open_easy() failed\n");
     }
 
-    crypto_box_detached(c, mac, m, (unsigned long long) mlen,
-                        nonce, bobsk, alicepk);
-    crypto_box_open_detached(m2, c, mac, (unsigned long long) mlen,
-                             nonce, alicepk, bobsk);
+    crypto_box_beforenm(k1, alicepk, bobsk);
+    crypto_box_beforenm(k2, bobpk, alicesk);
+
+    memset(m2, 0, sizeof m2);
+
+    if (crypto_box_easy_afternm(c, m, SIZE_MAX - 1U, nonce, k1) == 0) {
+        printf("crypto_box_easy_afternm() with a short ciphertext should have failed\n");
+    }
+    crypto_box_easy_afternm(c, m, (unsigned long long) mlen, nonce, k1);
+    crypto_box_open_easy_afternm(m2, c,
+                                 (unsigned long long) mlen + crypto_box_MACBYTES,
+                                 nonce, k2);
     printf("%d\n", memcmp(m, m2, mlen));
+    if (crypto_box_open_easy_afternm(m2, c, crypto_box_MACBYTES - 1U,
+                                     nonce, k2) == 0) {
+        printf("crypto_box_open_easy_afternm() with a huge ciphertext should have failed\n");
+    }
+    memset(m2, 0, sizeof m2);
+    crypto_box_detached(c, mac, m, (unsigned long long) mlen,
+                        nonce, alicepk, bobsk);
+    crypto_box_open_detached(m2, c, mac, (unsigned long long) mlen,
+                             nonce, bobpk, alicesk);
+    printf("%d\n", memcmp(m, m2, mlen));
+
+    memset(m2, 0, sizeof m2);
+    crypto_box_detached_afternm(c, mac, m, (unsigned long long) mlen,
+                                nonce, k1);
+    crypto_box_open_detached_afternm(m2, c, mac, (unsigned long long) mlen,
+                                     nonce, k2);
+    printf("%d\n", memcmp(m, m2, mlen));
+
     sodium_free(alicepk);
     sodium_free(alicesk);
     sodium_free(bobpk);
     sodium_free(bobsk);
     sodium_free(mac);
     sodium_free(nonce);
+    sodium_free(k1);
+    sodium_free(k2);
     printf("OK\n");
 
     return 0;

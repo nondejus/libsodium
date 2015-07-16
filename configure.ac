@@ -1,5 +1,5 @@
 AC_PREREQ([2.65])
-AC_INIT([libsodium],[1.0.1],
+AC_INIT([libsodium],[1.0.3],
   [https://github.com/jedisct1/libsodium/issues],
   [libsodium],
   [https://github.com/jedisct1/libsodium])
@@ -17,9 +17,9 @@ ISODATE=`date +%Y-%m-%d`
 AC_SUBST(ISODATE)
 
 SODIUM_LIBRARY_VERSION_MAJOR=7
-SODIUM_LIBRARY_VERSION_MINOR=3
+SODIUM_LIBRARY_VERSION_MINOR=5
 DLL_VERSION=6
-SODIUM_LIBRARY_VERSION=13:3:0
+SODIUM_LIBRARY_VERSION=15:0:2
 #                       | | |
 #                +------+ | +---+
 #                |        |     |
@@ -84,10 +84,10 @@ AC_ARG_ENABLE(pie,
 AS_CASE([$host_os], [mingw*|cygwin*|msys], [enable_pie="no"])
 
 AC_ARG_ENABLE(blocking-random,
-[AS_HELP_STRING(--enable-blocking-random,Use /dev/random instead of /dev/urandom)],
+[AS_HELP_STRING(--enable-blocking-random,Enable this switch only if /dev/urandom is totally broken on the target platform)],
 [
   AS_IF([test "x$enableval" = "xyes"], [
-    AC_DEFINE([USE_BLOCKING_RANDOM], [1], [Use blocking random])
+    AC_DEFINE([USE_BLOCKING_RANDOM], [1], [/dev/urandom is insecure on the target platform])
   ])
 ])
 
@@ -423,9 +423,10 @@ AC_SUBST([LIBTOOL_EXTRA_FLAGS])
 TEST_LDFLAGS=''
 AS_IF([test "x$EMSCRIPTEN" != "x"],[
   EXEEXT=.js
-  TEST_LDFLAGS='--pre-js pre.js.inc'
+  TEST_LDFLAGS='--memory-init-file 0 --pre-js pre.js.inc -s NO_BROWSER=1 -s RESERVED_FUNCTION_POINTERS=8'
 ])
 AC_SUBST(TEST_LDFLAGS)
+AM_CONDITIONAL([EMSCRIPTEN], [test "x$EMSCRIPTEN" != "x"])
 
 dnl Libtool.
 

@@ -1,4 +1,55 @@
 
+* Version 1.0.4 (not released yet)
+ - ChaCha20 with an extended (96 bit) nonce and a 32-bit counter has
+been implemented as crypto_stream_chacha20_ietf(),
+crypto_stream_chacha20_ietf_xor() and crypto_stream_chacha20_ietf_xor_ic().
+An IETF-compatible version of ChaCha20Poly1305 is available as
+crypto_aead_chacha20poly1305_ietf_npubbytes(),
+crypto_aead_chacha20poly1305_ietf_encrypt() and
+crypto_aead_chacha20poly1305_ietf_decrypt().
+ - Sodium can now be used in Windows Store apps.
+ - The sodium_increment() helper function has been added, to increment
+an arbitrary long number (such as a nonce).
+
+* Version 1.0.3
+ - In addition to sodium_bin2hex(), sodium_hex2bin() is now a
+constant-time function.
+ - crypto_stream_xsalsa20_ic() has been added.
+ - crypto_generichash_statebytes(), crypto_auth_*_statebytes() and
+crypto_hash_*_statebytes() have been added in order to retrieve the
+size of structures keeping states from foreign languages.
+ - The JavaScript target doesn't require /dev/urandom or an external
+randombytes() implementation any more. Other minor Emscripten-related
+improvements have been made in order to support libsodium.js
+ - Custom randombytes implementations do not need to provide their own
+implementation of randombytes_uniform() any more. randombytes_stir()
+and randombytes_close() can also be NULL pointers if they are not
+required.
+ - On Linux, getrandom(2) is being used instead of directly accessing
+/dev/urandom, if the kernel supports this system call.
+ - crypto_box_seal() and crypto_box_seal_open() have been added.
+ - A solutions for Visual Studio 2015 was added.
+
+* Version 1.0.2
+ - The _easy and _detached APIs now support precalculated keys;
+crypto_box_easy_afternm(), crypto_box_open_easy_afternm(),
+crypto_box_detached_afternm() and crypto_box_open_detached_afternm()
+have been added as an alternative to the NaCl interface.
+ - Memory allocation functions can now be used on operating systems with
+no memory protection.
+ - crypto_sign_open() and crypto_sign_edwards25519sha512batch_open()
+now accept a NULL pointer instead of a pointer to the message size, if
+storing this information is not required.
+ - The close-on-exec flag is now set on the descriptor returned when
+opening /dev/urandom.
+ - A libsodium-uninstalled.pc file to use pkg-config even when
+libsodium is not installed, has been added.
+ - The iOS target now includes armv7s and arm64 optimized code, as well
+as i386 and x86_64 code for the iOS simulator.
+ - sodium_free() can now be called on regions with PROT_NONE protection.
+ - The Javascript tests can run on Ubuntu, where the node binary was
+renamed nodejs. io.js can also be used instead of node.
+
 * Version 1.0.1
  - DLL_EXPORT was renamed SODIUM_DLL_EXPORT in order to avoid
 collisions with similar macros defined by other libraries.
