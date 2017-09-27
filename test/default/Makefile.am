@@ -61,8 +61,6 @@ EXTRA_DIST = \
 	siphashx24.exp \
 	sodium_core.exp \
 	sodium_utils.exp \
-	sodium_utils2.exp \
-	sodium_utils3.exp \
 	sodium_version.exp \
 	stream.exp \
 	stream2.exp \
@@ -130,8 +128,6 @@ DISTCLEANFILES = \
 	siphashx24.res \
 	sodium_core.res \
 	sodium_utils.res \
-	sodium_utils2.res \
-	sodium_utils3.res \
 	sodium_version.res \
 	stream.res \
 	stream2.res \
@@ -345,14 +341,6 @@ TESTS_TARGETS = \
 	stream3 \
 	stream4 \
 	verify1
-
-if !EMSCRIPTEN
-if !NATIVECLIENT
-TESTS_TARGETS += \
-	sodium_utils2 \
-	sodium_utils3
-endif
-endif
 
 check_PROGRAMS = $(TESTS_TARGETS)
 
